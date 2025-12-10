@@ -5,7 +5,7 @@ import joblib
 import tensorflow as tf
 from tensorflow import keras
 
-application = Flask(__name__)
+app = Flask(__name__)
 
 # Load models and scaler
 print("Loading models...")
@@ -27,7 +27,10 @@ try:
     scaler = joblib.load('scaler.pkl')
     print("[OK] Scaler loaded")
     
-    # Recalculate metrics from training data
+    # Load metrics (we'll calculate them from training, but for consistency, 
+    # we'll recalculate them here or store them)
+    # For now, we'll use fixed values from training (in production, store these)
+    # But let's recalculate them for accuracy
     from sklearn.metrics import r2_score
     import pandas as pd
     
@@ -51,11 +54,11 @@ except Exception as e:
     X_train_scaled_full = None
     y_train = None
 
-@application.route('/')
+@app.route('/')
 def home():
     return render_template('index.html')
 
-@application.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['POST'])
 def predict():
     '''
     For rendering results on HTML GUI
@@ -130,7 +133,7 @@ def predict():
         return render_template('index.html', 
                              error_text=f'Error making prediction: {str(e)}')
 
-@application.route('/api/predict', methods=['POST'])
+@app.route('/api/predict', methods=['POST'])
 def predict_api():
     '''
     API endpoint that returns JSON format
@@ -195,4 +198,5 @@ def predict_api():
 if __name__ == "__main__":
     if cnn_model is None or nb_model is None:
         print("\n[WARNING] Models not loaded. Please run 'python model.py' first.")
-    application.run(debug=True, host='127.0.0.1', port=5000)
+    app.run(debug=True, host='127.0.0.1', port=5000)
+

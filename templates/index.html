@@ -1,36 +1,152 @@
 <!DOCTYPE html>
-<html >
+<html>
 <!--From https://codepen.io/frytyler/pen/EGdtg-->
 <head>
   <meta charset="UTF-8">
-  <title>ML API</title>
+  <title>ML Salary Prediction API</title>
   <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
-<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  
+  <link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    .main-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .form-section {
+      flex: 1.5;
+      min-width: 450px;
+      max-width: 600px;
+    }
+    .form-section form {
+      width: 100%;
+    }
+    .form-section input {
+      padding: 12px 15px;
+      font-size: 15px;
+    }
+    .results-container {
+      flex: 1;
+      margin-top: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: flex-start;
+      min-width: 350px;
+    }
+    .prediction-box {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      padding: 20px;
+      min-width: 300px;
+      backdrop-filter: blur(10px);
+      width: 100%;
+    }
+    .prediction-box h3 {
+      margin-top: 0;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(0,0,0,0.5);
+      font-size: 20px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      padding-bottom: 10px;
+    }
+    .prediction-value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #4a77d4;
+      text-shadow: 0 0 10px rgba(74, 119, 212, 0.5);
+      margin: 15px 0;
+    }
+    .accuracy-value {
+      font-size: 18px;
+      color: #6eb6de;
+      margin-top: 10px;
+    }
+    .error-message {
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.2);
+      border: 2px solid #ff6b6b;
+      border-radius: 5px;
+      padding: 15px;
+      margin-top: 20px;
+      text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+    .login {
+      height: auto;
+      min-height: 500px;
+      padding-bottom: 30px;
+      position: relative;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      left: auto;
+      top: auto;
+      transform: none;
+    }
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+      }
+      .results-container {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
  <div class="login">
 	<h1>Predict Salary Analysis</h1>
+	<p style="font-size: 14px; margin-top: -10px; opacity: 0.8;">Using CNN & Naive Bayes Models</p>
 
-     <!-- Main Input For Receiving Query to our ML -->
-    <form action="{{ url_for('predict')}}"method="post">
-    	<input type="text" name="experience" placeholder="Experience" required="required" />
-        <input type="text" name="test_score" placeholder="Test Score" required="required" />
-		<input type="text" name="interview_score" placeholder="Interview Score" required="required" />
+    <div class="main-container">
+        <!-- Form Section -->
+        <div class="form-section">
+            <!-- Main Input For Receiving Query to our ML -->
+            <form action="{{ url_for('predict')}}" method="post" id="predictionForm">
+                <input type="number" name="experience" placeholder="Experience (years)" min="0" step="0.1" required="required" />
+                <input type="number" name="test_score" placeholder="Test Score (1-10)" min="1" max="10" step="0.1" required="required" />
+                <input type="number" name="interview_score" placeholder="Interview Score (1-10)" min="1" max="10" step="0.1" required="required" />
 
-        <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
-    </form>
+                <button type="submit" class="btn btn-primary btn-block btn-large">Predict Salary</button>
+            </form>
 
-   <br>
-   <br>
-   {{ prediction_text }}
+            <!-- Error Message Display -->
+            {% if error_text %}
+            <div class="error-message">
+                {{ error_text }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Results Display - Left Side -->
+        {% if cnn_prediction_inr %}
+        <div class="results-container">
+            <!-- CNN Prediction Box -->
+            <div class="prediction-box">
+                <h3>🤖 CNN Model</h3>
+                <div class="prediction-value">₹{{ cnn_prediction_inr }}</div>
+                <div class="accuracy-value">Accuracy: {{ cnn_accuracy }}%</div>
+            </div>
+
+            <!-- Naive Bayes Prediction Box -->
+            <div class="prediction-box">
+                <h3>📊 Naive Bayes Model</h3>
+                <div class="prediction-value">₹{{ nb_prediction_inr }}</div>
+                <div class="accuracy-value">Accuracy: {{ nb_accuracy }}%</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 
  </div>
-
 
 </body>
 </html>
