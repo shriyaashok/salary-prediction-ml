@@ -104,7 +104,7 @@
 <body>
  <div class="login">
 	<h1>Predict Salary Analysis</h1>
-	<p style="font-size: 14px; margin-top: -10px; opacity: 0.8;">Using CNN & Naive Bayes Models</p>
+	<p style="font-size: 14px; margin-top: -10px; opacity: 0.8;">Using ANN & Naive Bayes Models</p>
 
     <div class="main-container">
         <!-- Form Section -->
@@ -127,13 +127,13 @@
         </div>
 
         <!-- Results Display - Left Side -->
-        {% if cnn_prediction_inr %}
+        {% if ann_prediction_inr %}
         <div class="results-container">
-            <!-- CNN Prediction Box -->
+            <!-- ANN Prediction Box -->
             <div class="prediction-box">
-                <h3>🤖 CNN Model</h3>
-                <div class="prediction-value">₹{{ cnn_prediction_inr }}</div>
-                <div class="accuracy-value">Accuracy: {{ cnn_accuracy }}%</div>
+                <h3>🧠 ANN Model</h3>
+                <div class="prediction-value">₹{{ ann_prediction_inr }}</div>
+                <div class="accuracy-value">Accuracy: {{ ann_accuracy }}%</div>
             </div>
 
             <!-- Naive Bayes Prediction Box -->
